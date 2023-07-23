@@ -1,163 +1,87 @@
-#/bin/bash
-#=================================================
-#   Description: DIY script
-#   Lisence: MIT
-#   Author: P3TERX
-#   Blog: https://p3terx.com
-#=================================================
-
-#echo '修改feeds'
-#sed -i '5s/Lienol/sypopo/g' ./feeds.conf.default
-
-echo '修改网关地址'
-sed -i 's/192.168.1.1/192.168.2.1/g' package/base-files/files/bin/config_generate
-
-echo '修改时区'
-sed -i "s/'UTC'/'CST-8'\n        set system.@system[-1].zonename='Asia\/Shanghai'/g" package/base-files/files/bin/config_generate
-
-#echo '修改机器名称'
-#sed -i 's/OpenWrt/OpenWrt-x64/g' package/base-files/files/bin/config_generate
-
-echo '修改banner'
-cp -f diy/sypopo/banner package/base-files/files/etc/
-date=`date +%m.%d.%Y`
-sed -i "s/SyPopo$/SyPopo $date/g" package/base-files/files/etc/banner
-
-echo '添加软件包'
-#sed -i 's/0.32.1/0.33.0/g' package/diy/frp/Makefile
-git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
-git clone https://github.com/kenzok8/small.git package/small
-git clone https://github.com/fw876/helloworld.git package/luci-app-ssr-plus
-git clone https://github.com/xiaorouji/openwrt-passwall.git package/luci-app-passwall
-git clone https://github.com/tty228/luci-app-serverchan package/luci-app-serverchan
-svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/luci-app-openclash
-#rm -rf feeds/packages/libs/libcap
-#svn co https://github.com/openwrt/packages/branches/openwrt-19.07/libs/libcap feeds/packages/libs/libcap
-
-echo '定义默认值'
-cat > package/default-settings/files/zzz-default-settings <<-EOF
-#!/bin/sh
-
-touch /etc/crontabs/root
-
-uci set luci.main.lang=zh_cn
-uci set luci.themes.OpenTomato=/luci-static/tomato
-uci set luci.main.mediaurlbase=/luci-static/tomato
-uci commit luci
-
-uci set system.@system[0].timezone=CST-8
-uci set system.@system[0].zonename=Asia/Shanghai
-uci commit system
-
-uci set fstab.@global[0].anon_mount=1
-uci commit fstab
-
-#sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/aria2.lua
-#sed -i 's/services/nas/g' /usr/lib/lua/luci/view/aria2/overview_status.htm
-#sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/hd_idle.lua
-#sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/samba.lua
-#sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/minidlna.lua
-#sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/transmission.lua
-#sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/mjpg-streamer.lua
-#sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/p910nd.lua
-#sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/usb_printer.lua
-#sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/xunlei.lua
-#sed -i 's/services/nas/g'  /usr/lib/lua/luci/view/minidlna_status.htm
-#sed -i 's/\"services\"/\"vpn\"/g' /usr/lib/lua/luci/controller/shadowsocksr.lua
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/shadowsocksr/checkport.htm
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/shadowsocksr/refresh.htm
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/shadowsocksr/server_list.htm
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/shadowsocksr/status.htm
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/shadowsocksr/subscribe.htm
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/shadowsocksr/check.htm
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/model/cbi/shadowsocksr/server.lua
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/model/cbi/shadowsocksr/servers.lua
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/model/cbi/shadowsocksr/client-config.lua
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/model/cbi/shadowsocksr/server-config.lua
-#sed -i 's/\"services\"/\"vpn\"/g' /usr/lib/lua/luci/controller/openclash.lua
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/openclash/download_game_rule.htm
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/openclash/server_list.htm
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/openclash/update.htm
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/openclash/status.htm
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/model/cbi/openclash/client.lua
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/model/cbi/openclash/config.lua
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/model/cbi/openclash/config-subscribe.lua
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/model/cbi/openclash/game-rules-manage.lua
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/model/cbi/openclash/game-settings.lua
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/model/cbi/openclash/groups-config.lua
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/model/cbi/openclash/log.lua
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/model/cbi/openclash/proxy-provider-config.lua
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/model/cbi/openclash/servers.lua
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/model/cbi/openclash/servers-config.lua
-#sed -i 's/services/vpn/g' /usr/lib/lua/luci/model/cbi/openclash/settings.lua
-
-ln -sf /sbin/ip /usr/bin/ip
-
-sed -i '/lienol/d' /etc/opkg/distfeeds.conf
-sed -i '/other/d' /etc/opkg/distfeeds.conf
-sed -i '/diy1/d' /etc/opkg/distfeeds.conf
-#sed -i 's/downloads.openwrt.org/openwrt.proxy.ustclug.org/g' /etc/opkg/distfeeds.conf
-#sed -i 's/http/https/g' /etc/opkg/distfeeds.conf
-sed -i "s/# //g" /etc/opkg/distfeeds.conf
-
-#sed -i 's/root::0:0:99999:7:::/root:$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0:0:99999:7:::/g' /etc/shadow
-
-#uci set dhcp.lan.ra='server'
-#uci set dhcp.lan.dhcpv6='server'
-#uci set dhcp.lan.ra_management='1'
-#uci set dhcp.lan.ra_default='1'
-#uci set dhcp.@dnsmasq[0].localservice=0
-#uci set dhcp.@dnsmasq[0].nonwildcard=0
-uci delete dhcp.lan.ra
-uci delete dhcp.lan.dhcpv6
-uci delete dhcp.lan.ndp
-uci commit dhcp
-
-#设置网络
-#uci set network.wan.proto='pppoe'
-#uci set network.wan.username='account'
-#uci set network.wan.password='password'
-uci set network.wan.ifname='eth1'
-uci set network.wan6.ifname='eth1'
-uci set network.lan.ipaddr='192.168.2.1'
-uci set network.lan.proto='static'
-uci set network.lan.type='bridge'
-uci set network.lan.ifname='eth0 eth2 eth3'
-uci commit network   
-
-#DNS重定向
-#sed -i '/REDIRECT --to-ports 53/d' /etc/firewall.user
-#echo "# iptables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53" >> /etc/firewall.user
-
-sed -i '/option disabled/d' /etc/config/wireless
-sed -i '/set wireless.radio${devidx}.disabled/d' /lib/wifi/mac80211.sh
-wifi up
-
-sed -i '/DISTRIB_DESCRIPTION/d' /etc/openwrt_release
-echo "DISTRIB_DESCRIPTION='OpenWrt 19.07-SNAPSHOT'" >> /etc/openwrt_release
-sed -i 's/LuCI 17.01 Lienol/LuCI 17.01/g' /usr/lib/lua/luci/version.lua
-
-# 删除状态页不需显示的
-rm -rf /usr/lib/lua/luci/view/admin_status/index
-#mv -f /usr/lib/lua/luci/view/admin_status/index /usr/lib/lua/luci/view/admin_status/index_backup 2>/dev/null
-
-#禁用某些可能会自启动且用不上的依赖包服务
-/etc/init.d/php7-fastcgi disable 2>/dev/null
-/etc/init.d/php7-fpm disable 2>/dev/null
-/etc/init.d/php8-fastcgi disable 2>/dev/null
-/etc/init.d/php8-fpm disable 2>/dev/null
-/etc/init.d/softethervpnbridge disable 2>/dev/null
-/etc/init.d/softethervpnserver disable 2>/dev/null
-/etc/init.d/softethervpnclient disable 2>/dev/null
-/etc/init.d/haproxy disable 2>/dev/null
-/etc/init.d/kcptun disable 2>/dev/null
- 
-chmod 0755 /etc/init.d/*
- 
-rm -rf /tmp/luci-*cache
-
-exit 0
-EOF
-
-echo '当前路径'
-pwd
+CONFIG_TARGET_x86=y
+CONFIG_TARGET_x86_64=y
+CONFIG_TARGET_x86_64_DEVICE_generic=y
+CONFIG_LIBSODIUM_MINIMAL=y
+CONFIG_PACKAGE_6in4=y
+CONFIG_PACKAGE_boost=y
+CONFIG_PACKAGE_boost-program_options=y
+CONFIG_PACKAGE_boost-system=y
+CONFIG_PACKAGE_chinadns-ng=y
+CONFIG_PACKAGE_coreutils=y
+CONFIG_PACKAGE_coreutils-base64=y
+CONFIG_PACKAGE_coreutils-nohup=y
+CONFIG_PACKAGE_dns2socks=y
+CONFIG_PACKAGE_dns2tcp=y
+CONFIG_PACKAGE_frpc=y
+CONFIG_PACKAGE_haproxy=y
+CONFIG_PACKAGE_hysteria=y
+CONFIG_PACKAGE_ip-full=y
+CONFIG_PACKAGE_iputils-arping=y
+CONFIG_PACKAGE_ipv6helper=y
+CONFIG_PACKAGE_jq=y
+CONFIG_PACKAGE_kmod-ipt-nat6=y
+CONFIG_PACKAGE_kmod-iptunnel=y
+CONFIG_PACKAGE_kmod-iptunnel4=y
+CONFIG_PACKAGE_kmod-nf-nat6=y
+CONFIG_PACKAGE_kmod-shortcut-fe=y
+CONFIG_PACKAGE_kmod-shortcut-fe-cm=y
+CONFIG_PACKAGE_kmod-sit=y
+CONFIG_PACKAGE_kmod-tcp-bbr=y
+CONFIG_PACKAGE_kmod-tun=y
+# CONFIG_PACKAGE_kmod-usb-printer is not set
+CONFIG_PACKAGE_libatomic=y
+CONFIG_PACKAGE_libbpf=y
+CONFIG_PACKAGE_libcares=y
+CONFIG_PACKAGE_libelf=y
+CONFIG_PACKAGE_libev=y
+CONFIG_PACKAGE_libltdl=y
+CONFIG_PACKAGE_liblua5.3=y
+CONFIG_PACKAGE_libmbedtls=y
+CONFIG_PACKAGE_libminiupnpc=y
+CONFIG_PACKAGE_libnatpmp=y
+CONFIG_PACKAGE_libsodium=y
+CONFIG_PACKAGE_libstdcpp=y
+CONFIG_PACKAGE_libudns=y
+CONFIG_PACKAGE_luci-app-filetransfer=y
+CONFIG_PACKAGE_luci-app-frpc=y
+CONFIG_PACKAGE_luci-app-passwall=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Hysteria=y
+CONFIG_PACKAGE_luci-app-serverchan=y
+CONFIG_PACKAGE_luci-app-socat=y
+# CONFIG_PACKAGE_luci-app-timecontrol is not set
+CONFIG_PACKAGE_luci-app-turboacc=y
+# CONFIG_PACKAGE_luci-app-usb-printer is not set
+# CONFIG_PACKAGE_luci-app-vlmcsd is not set
+# CONFIG_PACKAGE_luci-app-vsftpd is not set
+CONFIG_PACKAGE_luci-app-zerotier=y
+CONFIG_PACKAGE_luci-i18n-filetransfer-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-frpc-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-passwall-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-socat-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-turboacc-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-zerotier-zh-cn=y
+CONFIG_PACKAGE_luci-lib-fs=y
+CONFIG_PACKAGE_luci-theme-tomato=y
+CONFIG_PACKAGE_microsocks=y
+# CONFIG_PACKAGE_p910nd is not set
+CONFIG_PACKAGE_resolveip=y
+CONFIG_PACKAGE_shadowsocks-libev-ss-local=y
+CONFIG_PACKAGE_shadowsocks-libev-ss-redir=y
+CONFIG_PACKAGE_shadowsocks-libev-ss-server=y
+CONFIG_PACKAGE_shadowsocksr-libev-ssr-local=y
+CONFIG_PACKAGE_shadowsocksr-libev-ssr-redir=y
+CONFIG_PACKAGE_simple-obfs-client=y
+CONFIG_PACKAGE_socat=y
+CONFIG_PACKAGE_tcping=y
+CONFIG_PACKAGE_trojan-plus=y
+CONFIG_PACKAGE_unzip=y
+CONFIG_PACKAGE_v2ray-core=y
+CONFIG_PACKAGE_v2ray-plugin=y
+# CONFIG_PACKAGE_vlmcsd is not set
+# CONFIG_PACKAGE_vsftpd-alt is not set
+CONFIG_PACKAGE_xray-core=y
+CONFIG_PACKAGE_zerotier=y
+CONFIG_boost-compile-visibility-hidden=y
+CONFIG_boost-runtime-shared=y
+CONFIG_boost-static-and-shared-libs=y
+CONFIG_boost-variant-release=y
